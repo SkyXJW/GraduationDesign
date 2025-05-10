@@ -1,6 +1,6 @@
 # GraduationDesign
 ![teaser](pictures/优化算法框架图.png)
-毕设的一些代码
+完成毕设的相关代码与Prompt
 
 ## Environment Setup
 ```bash
