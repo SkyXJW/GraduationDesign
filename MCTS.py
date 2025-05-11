@@ -244,7 +244,7 @@ The idea is to use Breadth-First Search (BFS) to find the longest path in the tr
 
         # 使用 tqdm 显示进度条
         for row in tqdm(dataset, desc=f"Processing {category}"):
-            if category != "interview" or row["id"] > 29 or row["id"] <= 0:
+            if category != "interview" or row["id"] > 29 or row["id"] <= 19:
                 continue
             # res = run_tests(code, row["private_tests"])
             # print("here")
