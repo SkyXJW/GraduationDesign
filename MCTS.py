@@ -125,118 +125,38 @@ def main():
     mcts = MCTS(tokenizer, model)
     test_data = load_proceed(100) # 各个难度的题目抽100道
     first_write = False
+
     code = '''
-import sys
-
-def solve(a, b, c):
-    dp = [[[float('inf')] * (c + 1) for _ in range(b + 1)] for _ in range(a + 1)]
-    dp[a][b][c] = 0
-    for i in range(a, b + 1):
-        for j in range(i, c + 1):
-            for k in range(j, c + 1):
-                if i == j == k:
-                    dp[i][j][k] = 0
-                else:
-                    dp[i][j][k] = min(dp[i][j][k], dp[i][j - 1][k] + 1, dp[i][j + 1][k] + 1, dp[i - 1][j][k] + 1, dp[i + 1][j][k] + 1, dp[i][j][k - 1] + 1, dp[i][j][k + 1] + 1)
-    res = float('inf')
-    ans = (0, 0, 0)
-    for i in range(a, b + 1):
-        for j in range(i, c + 1):
-            for k in range(j, c + 1):
-                if j % i == 0 and k % j == 0:
-                    if dp[i][j][k] < res:
-                        res = dp[i][j][k]
-                        ans = (i, j, k)
-    return res, ans
-
-t = int(input())
-for _ in range(t):
-    a, b, c = map(int, input().split())
-    res, ans = solve(a, b, c)
-    print(res)
-    print(*ans)
-'''
-    code = '''
-# Step 1:  Import the necessary libraries
-from collections import defaultdict, deque
-
-# Step 2:  Define a function to perform topological sorting on the graph
-def topological_sort(graph, in_degree, n):
-    # Step 3:  Initialize a queue with all nodes with in-degree 0
-    
-    queue = deque([i for i in range(1, n+1) if in_degree[i] == 0])
-    # Step 4:  Initialize a list to store the sorted order of nodes
-    
-    sorted_order = []
-    # Step 5:  Perform topological sorting
-    
-    while queue:
-        node = queue.popleft()
-        sorted_order.append(node)
-        for neighbor in graph[node]:
-            in_degree[neighbor] -= 1
-            if in_degree[neighbor] == 0:
-                queue.append(neighbor)
-    # Step 6:  Check if all nodes are included in the sorted order
-    
-    if len(sorted_order) == n:
-        return sorted_order
+def evaluate_bracket_sequence(n, tokens):
+    stack = []
+    current_op = '+'
+    current_num = 0
+    for token in tokens:
+        if token == '(':
+            stack.append(current_op)
+            current_op = '+'
+            current_num = 0
+        elif token == ')':
+            if current_op == '+':
+                current_num = sum(stack.pop() for _ in range(len(stack)))
+            else:
+                current_num = reduce(lambda x, y: x * y, stack.pop() for _ in range(len(stack)))
+            current_op = stack.pop()
+        else:
+            current_num += int(token)
+    if current_op == '+':
+        return sum(stack) + current_num
     else:
-        return []
-
-# Step 7:  Define a function to find the minimum number of courses required to get the specialty
-def min_courses(n, k, main_courses, dependencies):
-    # Step 8:  Create a graph and in-degree dictionary
-    
-    graph = defaultdict(list)
-    in_degree = defaultdict(int)
-    for i in range(1, n+1):
-        in_degree[i] = 0
-    # Step 9:  Add edges to the graph and update in-degree
-    
-    for i in range(1, n+1):
-        for j in dependencies[i]:
-            graph[j].append(i)
-            in_degree[i] += 1
-    # Step 10:  Perform topological sorting
-    
-    sorted_order = topological_sort(graph, in_degree, n)
-    # Step 11:  Check if all main courses are included in the sorted order
-    
-    if len(sorted_order) == 0:
-        return -1
-    else:
-        # Step 12:  Find the minimum number of courses required to get the specialty
-        
-        min_courses = set()
-        for course in sorted_order:
-            if course in main_courses:
-                min_courses.add(course)
-                for neighbor in graph[course]:
-                    if neighbor not in min_courses:
-                        min_courses.add(neighbor)
-        return len(min_courses), min_courses
-
-# Step 13:  Read input
-n, k = map(int, input().split())
-main_courses = set(map(int, input().split()))
-dependencies = defaultdict(list)
-for i in range(1, n+1):
-    t = int(input())
-    dependencies[i] = list(map(int, input().split()))
-# Step 14:  Find the minimum number of courses required to get the specialty
-min_courses, courses = min_courses(n, k, main_courses, dependencies)
-# Step 15:  Print the result
-if min_courses == -1:
-    print(-1)
-else:
-    print(min_courses)
-    print(*courses)
+        return reduce(lambda x, y: x * y, stack) * current_num
+n = int(input())
+tokens = input().split()
+result = evaluate_bracket_sequence(n, tokens)
+print(result % (10**9 + 7))
 '''
     failed_cases = []
     failed_cases.append({'input': '8\n1 2\n2 3\n3 4\n4 5\n4 6\n3 7\n3 8\n', 'expected_output': '5\n1 8 6', 'factual_output': '4\n5 3 1'})
-    current_thought = '''
-The idea is to use Breadth-First Search (BFS) to find the longest path in the tree. We start BFS from an arbitrary vertex and find the farthest vertex from it. Then we start BFS from this farthest vertex and find the farthest vertex from it again. The path between these two farthest vertices is the longest path in the tree. We then choose three vertices from this path such that the number of edges which belong to at least one of the simple paths between them is the maximum possible. This can be achieved by choosing the first, middle, and last vertices of the path.
+    thought = '''
+We can use a stack to keep track of the operations and numbers as we parse the input. When we encounter an opening parenthesis, we push the current operation onto the stack and start a new operation. When we encounter a closing parenthesis, we pop the last operation from the stack and combine it with the current operation. When we encounter a number, we add it to the current operation. Finally, we evaluate the final operation to get the result.
 '''
 
     for category, dataset in test_data.items():
@@ -244,7 +164,7 @@ The idea is to use Breadth-First Search (BFS) to find the longest path in the tr
 
         # 使用 tqdm 显示进度条
         for row in tqdm(dataset, desc=f"Processing {category}"):
-            if category != "interview" or row["id"] > 29 or row["id"] <= 19:
+            if category != "competition" or row["id"] <= 3000 or row["id"] > 3029:
                 continue
             # res = run_tests(code, row["private_tests"])
             # print("here")
@@ -255,10 +175,10 @@ The idea is to use Breadth-First Search (BFS) to find the longest path in the tr
             #     "question_id": row['id'],
             #     "time_taken": "Timeout",
             #     "pass_rate": res["pass_rate"],
-            #     "thought": "",
+            #     "thought": thought,
             #     "best_code": code  # 也可以存储代码
             # }
-            # save_result_entry(result_entry, is_first=first_write)
+            # save_result_entry(result_entry, RESULTS_FILE, is_first=first_write)
             # exit()
             # if category == "introductory" and row["id"] > 4029:
             #     continue
