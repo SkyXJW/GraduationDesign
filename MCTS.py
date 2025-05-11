@@ -164,7 +164,7 @@ We can use a stack to keep track of the operations and numbers as we parse the i
 
         # 使用 tqdm 显示进度条
         for row in tqdm(dataset, desc=f"Processing {category}"):
-            if category != "competition" or row["id"] <= 3000 or row["id"] > 3029:
+            if category != "competition" or row["id"] <= 3015 or row["id"] > 3029:
                 continue
             # res = run_tests(code, row["private_tests"])
             # print("here")
