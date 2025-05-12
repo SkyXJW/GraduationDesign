@@ -127,36 +127,59 @@ def main():
     first_write = False
 
     code = '''
-def evaluate_bracket_sequence(n, tokens):
-    stack = []
-    current_op = '+'
-    current_num = 0
-    for token in tokens:
-        if token == '(':
-            stack.append(current_op)
-            current_op = '+'
-            current_num = 0
-        elif token == ')':
-            if current_op == '+':
-                current_num = sum(stack.pop() for _ in range(len(stack)))
-            else:
-                current_num = reduce(lambda x, y: x * y, stack.pop() for _ in range(len(stack)))
-            current_op = stack.pop()
+from collections import defaultdict, deque
+
+def find_order(L, N, words):
+    # Create a directed graph where each node represents a character in the alphabet
+    graph = defaultdict(list)
+    in_degree = defaultdict(int)
+    for i in range(N-1):
+        word1, word2 = words[i], words[i+1]
+        for j in range(min(len(word1), len(word2))):
+            if word1[j] != word2[j]:
+                graph[word1[j]].append(word2[j])
+                in_degree[word2[j]] += 1
+                break
         else:
-            current_num += int(token)
-    if current_op == '+':
-        return sum(stack) + current_num
-    else:
-        return reduce(lambda x, y: x * y, stack) * current_num
-n = int(input())
-tokens = input().split()
-result = evaluate_bracket_sequence(n, tokens)
-print(result % (10**9 + 7))
+            if len(word1) > len(word2):
+                return "IMPOSSIBLE"
+    
+    # Use a topological sort algorithm to find the order of the nodes in the graph
+    queue = deque([c for c in L if in_degree[c] == 0])
+    order = []
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                queue.append(neighbor)
+    
+    # Check if the graph contains a cycle
+    if len(order) != len(L):
+        return "IMPOSSIBLE"
+    
+    # Check if there are multiple valid topological sorts
+    if len(order) == len(L) and len(queue) > 0:
+        return "AMBIGUOUS"
+    
+    return "".join(order)
+
+# Read input
+L, N = input().split()
+N = int(N)
+words = [input() for _ in range(N)]
+
+# Find the order of the alphabet
+order = find_order(L, N, words)
+
+# Output the result
+print(order)
 '''
     failed_cases = []
     failed_cases.append({'input': '8\n1 2\n2 3\n3 4\n4 5\n4 6\n3 7\n3 8\n', 'expected_output': '5\n1 8 6', 'factual_output': '4\n5 3 1'})
     thought = '''
-We can use a stack to keep track of the operations and numbers as we parse the input. When we encounter an opening parenthesis, we push the current operation onto the stack and start a new operation. When we encounter a closing parenthesis, we pop the last operation from the stack and combine it with the current operation. When we encounter a number, we add it to the current operation. Finally, we evaluate the final operation to get the result.
+We can use a graph-based approach to solve this problem. We can create a directed graph where each node represents a character in the alphabet, and there is a directed edge from node A to node B if A comes before B in the lexicographical order. We can then use a topological sort algorithm to find the order of the nodes in the graph, which will give us the lexicographical order of the alphabet. If the graph contains a cycle, then the input is inconsistent and we should output IMPOSSIBLE. If there are multiple valid topological sorts, then the input is ambiguous and we should output AMBIGUOUS.
 '''
 
     for category, dataset in test_data.items():
@@ -164,7 +187,7 @@ We can use a stack to keep track of the operations and numbers as we parse the i
 
         # 使用 tqdm 显示进度条
         for row in tqdm(dataset, desc=f"Processing {category}"):
-            if category != "competition" or row["id"] <= 3015 or row["id"] > 3029:
+            if category != "competition" or row["id"] <= 3021 or row["id"] > 3029:
                 continue
             # res = run_tests(code, row["private_tests"])
             # print("here")
