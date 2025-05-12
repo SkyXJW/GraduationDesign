@@ -16,7 +16,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-RESULTS_FILE = "/home/xjg/GraduationDesign/results/Qwen_ablation_no_cut.json"
+RESULTS_FILE = "/home/xjg/GraduationDesign/results/Qwen_ablation_full_method.json"
 
 class Node:
     def __init__(self, state, parent=None, policy_prob=None):
