@@ -64,14 +64,14 @@ class MCTS:
                     if selected_child is None:
                         max_pucb = pucb
                         selected_child = child
-                    # # 在child的pass_rate低于给定阈值v_pass的情况下，当且仅当child.pass_rate更高时，才会被选中
-                    # # 即是说，这时pucb的优先级 < pass_rate的优先级
-                    # elif child.pass_rate < self.v_pass:
-                    #     if child.pass_rate > selected_child.pass_rate:
-                    #         max_pucb = pucb
-                    #         selected_child = child
-                    # # 在child的pass_rate不低于给定阈值v_pass的情况下，即使child的pass_rate可能会更低，也依然会被选中
-                    # # 即是说，这时pucb的优先级 > pass_rate的优先级
+                    # 在child的pass_rate低于给定阈值v_pass的情况下，当且仅当child.pass_rate更高时，才会被选中
+                    # 即是说，这时pucb的优先级 < pass_rate的优先级
+                    elif child.pass_rate < self.v_pass:
+                        if child.pass_rate > selected_child.pass_rate:
+                            max_pucb = pucb
+                            selected_child = child
+                    # 在child的pass_rate不低于给定阈值v_pass的情况下，即使child的pass_rate可能会更低，也依然会被选中
+                    # 即是说，这时pucb的优先级 > pass_rate的优先级
                     else:
                         max_pucb = pucb
                         selected_child = child
