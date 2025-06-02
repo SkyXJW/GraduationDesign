@@ -187,7 +187,7 @@ We can use a graph-based approach to solve this problem. We can create a directe
 
         # 使用 tqdm 显示进度条
         for row in tqdm(dataset, desc=f"Processing {category}"):
-            if category != "interview" or row["id"] > 29 or row["id"] <= 2 or row["id"] == 13 or row["id"] == 19 or row["id"] == 20 or row["id"] == 25 or row["id"] == 26 or row["id"] == 27:
+            if category != "competition" or row["id"] > 3029 or row["id"] <= 3021:
                 continue
             # res = run_tests(code, row["private_tests"])
             # print("here")
